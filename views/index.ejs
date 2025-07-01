@@ -1,33 +1,205 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <%- include('partials/head') %>
+<%- include('partials/head') %>
 <body>
-  <div class="container">
-    <h1>Mini IA - Chat</h1>
-    <form action="/ask" method="POST">
-      <input type="text" name="question" placeholder="Posez votre question..." required />
-      <button type="submit">Envoyer</button>
-    </form>
+  <div style="display:flex; height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f8fa;">
 
-<% if (response) { %>
-  <div class="response">
-    <strong>Réponse :</strong> <%= response %>
+    <!-- Sidebar -->
+    <div style="width: 280px; border-right: 1px solid #ddd; padding: 20px; box-sizing: border-box; overflow-y: auto; background: #fff;">
+      <h2 style="margin-bottom: 20px; font-weight: 700; color: #333;">💬 Conversations</h2>
+      <button id="new-chat-btn" style="width:100%; padding:12px; font-size:16px; background:#1976d2; color:#fff; border:none; border-radius: 5px; cursor:pointer; transition: background 0.3s;">
+        ➕ Nouvelle conversation
+      </button>
+
+      <ul id="chat-list" style="list-style:none; padding:0; margin-top: 20px;">
+        <% chats.forEach(chat => { %>
+          <li data-chat-id="<%= chat.id %>" 
+              style="padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; border-radius: 5px; margin-bottom: 5px; font-weight: 600; color: #555; <%= chat.id == currentChatId ? 'background:#e3f2fd; color:#1976d2;' : '' %>">
+            Conversation #<%= chat.id %>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+
+    <!-- Chat area -->
+    <div style="flex-grow:1; display:flex; flex-direction: column; padding: 20px; box-sizing: border-box;">
+
+      <div id="chat-box" style="flex-grow:1; border:1px solid #ccc; padding:20px; overflow-y:auto; background:#ffffff; margin-bottom:20px; border-radius:10px; box-shadow: 0 0 10px rgb(0 0 0 / 0.05);">
+        <% if (messages && messages.length > 0) { %>
+          <% messages.forEach(m => { %>
+            <div class="message <%= m.role === 'user' ? 'user' : 'ai' %>">
+              <strong><%= m.role === 'user' ? '🙋‍♂️ Vous:' : '🤖 IA:' %></strong> <%= m.content %>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p style="color:#999; font-style: italic; text-align:center; margin-top: 40px;">Démarrez une conversation ou sélectionnez une existante.</p>
+        <% } %>
+      </div>
+
+      <form id="chat-form" style="display:flex; gap: 10px;">
+        <input type="text" id="question" name="question" placeholder="Votre message 😊..." required autocomplete="off" 
+               style="flex-grow:1; padding:15px 20px; font-size:18px; border-radius: 30px; border: 2px solid #1976d2; outline:none; transition: box-shadow 0.3s;"
+               onfocus="this.style.boxShadow='0 0 10px #1976d2'" 
+               onblur="this.style.boxShadow='none'" />
+        <button type="submit" style="padding: 0 30px; font-size:18px; border-radius: 30px; border:none; background:#1976d2; color:#fff; cursor:pointer; transition: background 0.3s;">
+          Envoyer
+        </button>
+      </form>
+    </div>
   </div>
-<% } %>
 
-<% if (history && history.length > 0) { %>
+  <style>
+    .message {
+      margin-bottom: 15px;
+      padding: 15px 20px;
+      border-radius: 25px;
+      max-width: 70%;
+      word-wrap: break-word;
+      font-size: 16px;
+      line-height: 1.4;
+      opacity: 0;
+      transform: translateY(15px);
+      animation: fadeInUp 0.5s forwards;
+      box-shadow: 0 2px 5px rgb(0 0 0 / 0.05);
+      white-space: pre-wrap; /* keep line breaks */
+    }
+    .message.user {
+      background: #e3f2fd;
+      color: #0d47a1;
+      align-self: flex-start;
+    }
+    .message.ai {
+      background: #fff9c4;
+      color: #f57f17;
+      align-self: flex-start;
+      font-style: italic;
+    }
+    #chat-list li:hover {
+      background: #bbdefb;
+      color: #0d47a1;
+    }
 
-  <hr />
-  <h2>Historique récent</h2>
-  <ul>
-    <% history.forEach(item => { %>
-      <li><strong>Q:</strong> <%= item.question %><br/>
-          <strong>R:</strong> <%= item.response %></li>
-    <% }) %>
-  </ul>
-<% } %>
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 
-  </div>
+  <script>
+    const chatList = document.getElementById('chat-list');
+    const newChatBtn = document.getElementById('new-chat-btn');
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const input = document.getElementById('question');
+
+    let currentChatId = <%= currentChatId || 'null' %>;
+
+    // Effet machine à écrire (char by char)
+    async function typeText(element, text) {
+      element.textContent = '';
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text.charAt(i);
+        await new Promise(r => setTimeout(r, 20)); // vitesse 20ms par char (ajuste si besoin)
+      }
+    }
+
+    async function loadChat(chatId) {
+      if (!chatId) return;
+
+      const res = await fetch(`/chat/${chatId}`);
+      const data = await res.json();
+
+      currentChatId = chatId;
+      chatBox.innerHTML = '';
+
+      if (data.messages.length === 0) {
+        chatBox.innerHTML = '<p style="color:#777;">Pas encore de messages dans cette conversation.</p>';
+      } else {
+        for (const m of data.messages) {
+          const div = document.createElement('div');
+          div.className = 'message ' + (m.role === 'user' ? 'user' : 'ai');
+          div.innerHTML = `<strong>${m.role === 'user' ? '🙋‍♂️ Vous:' : '🤖 IA:'}</strong> `;
+          if (m.role === 'ai') {
+            await typeText(div, m.content);
+          } else {
+            div.appendChild(document.createTextNode(m.content));
+          }
+          chatBox.appendChild(div);
+        }
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+      input.focus();
+
+      // Mise à jour visuelle de la sélection
+      [...chatList.children].forEach(li => {
+        li.style.background = li.dataset.chatId == chatId ? '#e3f2fd' : '';
+        li.style.color = li.dataset.chatId == chatId ? '#1976d2' : '#555';
+      });
+    }
+
+    chatList.addEventListener('click', e => {
+      if (e.target.tagName === 'LI') {
+        const id = e.target.dataset.chatId;
+        loadChat(id);
+      }
+    });
+
+    newChatBtn.addEventListener('click', () => {
+      window.location.href = '/new';
+    });
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentChatId) {
+        alert('Sélectionnez ou créez une conversation avant de poster.');
+        return;
+      }
+
+      const question = input.value.trim();
+      if (!question) return;
+
+      // Affichage immédiat du message utilisateur
+      const userDiv = document.createElement('div');
+      userDiv.className = 'message user';
+      userDiv.innerHTML = `<strong>🙋‍♂️ Vous:</strong> ${question}`;
+      chatBox.appendChild(userDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      input.value = '';
+      input.disabled = true;
+
+      // Création de la div pour la réponse IA (vide pour l’instant)
+      const aiDiv = document.createElement('div');
+      aiDiv.className = 'message ai';
+      aiDiv.innerHTML = `<strong>🤖 IA:</strong> `;
+      chatBox.appendChild(aiDiv);
+
+      // Envoi au serveur
+      const res = await fetch(`/chat/${currentChatId}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const data = await res.json();
+
+      // Effet machine à écrire pour la réponse IA
+      await typeText(aiDiv, data.reply);
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+      input.disabled = false;
+      input.focus();
+    });
+
+    window.onload = () => {
+      if (currentChatId) {
+        loadChat(currentChatId);
+      }
+    };
+  </script>
+
   <%- include('partials/footer') %>
 </body>
 </html>

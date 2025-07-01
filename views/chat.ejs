@@ -1,0 +1,50 @@
+<div style="display:flex;">
+  <div style="width:200px; border-right:1px solid #ccc;">
+    <h3>Chats</h3>
+    <a href="/new">➕ Nouveau Chat</a>
+    <ul>
+      <% chats.forEach(c => { %>
+        <li><a href="/chat/<%= c.id %>">Chat <%= c.id %></a></li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <div style="flex:1; padding:10px;">
+    <div id="chat-box" style="height:400px; overflow-y:auto;">
+      <% messages.forEach(m => { %>
+        <div class="<%= m.role %>"><strong><%= m.role %>:</strong> <%= m.content %></div>
+      <% }) %>
+    </div>
+
+    <form id="chat-form">
+      <input type="text" name="question" id="question" placeholder="Votre message 😊..." required />
+      <button>Envoyer</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('chat-form');
+  const box = document.getElementById('chat-box');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const question = document.getElementById('question').value;
+
+    const userMsg = document.createElement('div');
+    userMsg.innerHTML = `<strong>vous:</strong> ${question}`;
+    box.appendChild(userMsg);
+
+    const res = await fetch(window.location.pathname + '/message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+
+    const data = await res.json();
+    const aiMsg = document.createElement('div');
+    aiMsg.innerHTML = `<strong>IA:</strong> ${data.reply}`;
+    box.appendChild(aiMsg);
+    form.reset();
+    box.scrollTop = box.scrollHeight;
+  });
+</script>
