@@ -168,6 +168,30 @@ app.post('/chat/:id/message', async (req, res) => {
   }
 });
 
+
+// ✅ Récupérer tous les utilisateurs avec leurs chats et messages
+app.get('/admin/users-chats', async (req, res) => {
+  try {
+    const usersWithChats = await User.findAll({
+      include: {
+        model: Chat,
+        include: {
+          model: Message,
+          order: [['createdAt', 'ASC']],
+        },
+        order: [['createdAt', 'DESC']],
+      },
+      order: [['createdAt', 'ASC']],
+    });
+
+    res.json(usersWithChats);
+  } catch (err) {
+    console.error('Erreur récupération utilisateurs et chats :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`✅ Serveur démarré sur http://localhost:${port}`);
 });
