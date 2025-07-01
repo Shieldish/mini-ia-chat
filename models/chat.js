@@ -15,7 +15,9 @@ const Chat = sequelize.define('Chat', {
     type: DataTypes.STRING,
     defaultValue: 'Nouvelle conversation',
   },
-}, { timestamps: true });
+}, {
+  timestamps: true,  // <- doit être là ou laissé par défaut
+});
 
 const Message = sequelize.define('Message', {
   role: DataTypes.STRING, // 'user' ou 'ai'
