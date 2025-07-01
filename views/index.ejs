@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <%- include('partials/head') %>
+<body>
+  <div class="container">
+    <h1>Mini IA - Chat</h1>
+    <form action="/ask" method="POST">
+      <input type="text" name="question" placeholder="Posez votre question..." required />
+      <button type="submit">Envoyer</button>
+    </form>
+
+<% if (response) { %>
+  <div class="response">
+    <strong>Réponse :</strong> <%= response %>
+  </div>
+<% } %>
+
+<% if (history && history.length > 0) { %>
+
+  <hr />
+  <h2>Historique récent</h2>
+  <ul>
+    <% history.forEach(item => { %>
+      <li><strong>Q:</strong> <%= item.question %><br/>
+          <strong>R:</strong> <%= item.response %></li>
+    <% }) %>
+  </ul>
+<% } %>
+
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>
