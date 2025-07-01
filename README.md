@@ -46,3 +46,6 @@ Modifier
 PORT=3000
 DATABASE_URL=postgresql://user:password@host:port/database
 GEMINI_API_KEY=ta_clef_api_google_gemini
+
+## Démo
+https://mini-ia-chat.onrender.com/
