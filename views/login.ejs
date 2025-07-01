@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Bienvenue</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+    .modal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: rgba(0,0,0,0.4);
+      animation: fadeIn 0.4s ease;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      animation: slideIn 0.5s ease;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      border: none;
+      background: #00bcd4;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <form class="modal-content" method="POST" action="/login">
+      <h2 style="margin-bottom: 20px;">Entrez votre nom</h2>
+      <input type="text" name="name" placeholder="Votre nom..." required />
+      <button type="submit">Continuer</button>
+    </form>
+  </div>
+</body>
+</html>

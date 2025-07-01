@@ -1,10 +1,11 @@
 <div style="display:flex;">
   <div style="width:200px; border-right:1px solid #ccc;">
     <h3>Chats</h3>
-    <a href="/new">➕ Nouveau Chat</a>
+    <a href="/new?userId=<%= userId %>">➕ Nouveau Chat</a>
+   
     <ul>
       <% chats.forEach(c => { %>
-        <li><a href="/chat/<%= c.id %>">Chat <%= c.id %></a></li>
+        <li><a href="/chat/user/<%= userId %>?chatId=<%= c.id %>">Chat <%= c.id %></a></li>
       <% }) %>
     </ul>
   </div>

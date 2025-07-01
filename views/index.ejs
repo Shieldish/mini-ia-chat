@@ -2,19 +2,18 @@
 <html lang="fr">
 <%- include('partials/head') %>
 <body>
-  <div style="display:flex; height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f8fa;">
+
+  <div style="display:flex; height: 100vh; font-family: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin:0; padding:0;">
 
     <!-- Sidebar -->
-    <div style="width: 280px; border-right: 1px solid #ddd; padding: 20px; box-sizing: border-box; overflow-y: auto; background: #fff;">
-      <h2 style="margin-bottom: 20px; font-weight: 700; color: #333;">💬 Conversations</h2>
-      <button id="new-chat-btn" style="width:100%; padding:12px; font-size:16px; background:#1976d2; color:#fff; border:none; border-radius: 5px; cursor:pointer; transition: background 0.3s;">
-        ➕ Nouvelle conversation
-      </button>
+    <div style="width: 280px; border-right: 1px solid rgba(255,255,255,0.1); padding: 20px; overflow-y: auto; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+      <h2 style="margin-bottom: 20px; font-weight: 700; color: #fff;">💬 Conversations</h2>
+      <button id="new-chat-btn" class="btn-primary">➕ Nouvelle conversation</button>
 
       <ul id="chat-list" style="list-style:none; padding:0; margin-top: 20px;">
         <% chats.forEach(chat => { %>
           <li data-chat-id="<%= chat.id %>" 
-              style="padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; border-radius: 5px; margin-bottom: 5px; font-weight: 600; color: #555; <%= chat.id == currentChatId ? 'background:#e3f2fd; color:#1976d2;' : '' %>">
+              style="padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; border-radius: 12px; margin-bottom: 8px; font-weight: 500; <%= chat.id == currentChatId ? 'background: linear-gradient(135deg, #ff6b6b, #feca57); color: #fff;' : 'color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05);' %> transition: all 0.3s ease;">
             Conversation #<%= chat.id %>
           </li>
         <% }) %>
@@ -22,64 +21,225 @@
     </div>
 
     <!-- Chat area -->
-    <div style="flex-grow:1; display:flex; flex-direction: column; padding: 20px; box-sizing: border-box;">
+    <div style="flex-grow:1; display:flex; flex-direction: column; padding: 20px;">
 
-      <div id="chat-box" style="flex-grow:1; border:1px solid #ccc; padding:20px; overflow-y:auto; background:#ffffff; margin-bottom:20px; border-radius:10px; box-shadow: 0 0 10px rgb(0 0 0 / 0.05);">
+      <!-- Titre animé avec nom utilisateur -->
+      <div id="user-greeting" style="
+        font-size: 2.8rem;
+        font-weight: 800;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(270deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+        background-size: 800% 800%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientShift 8s ease infinite;
+        margin-bottom: 25px;
+        text-align: center;
+        user-select: none;
+        text-shadow: 0 4px 20px rgba(255,255,255,0.3);
+      ">
+        Salut, <%= userName %> ! ✨
+      </div>
+
+      <div id="chat-box" class="chat-box">
         <% if (messages && messages.length > 0) { %>
           <% messages.forEach(m => { %>
             <div class="message <%= m.role === 'user' ? 'user' : 'ai' %>">
-              <strong><%= m.role === 'user' ? '🙋‍♂️ Vous:' : '🤖 IA:' %></strong> <%= m.content %>
+              <strong><%= m.role === 'user' ? `🙋‍♂️ ${userName}:` : '🤖 IA:' %></strong> <%= m.content %>
             </div>
           <% }) %>
         <% } else { %>
-          <p style="color:#999; font-style: italic; text-align:center; margin-top: 40px;">Démarrez une conversation ou sélectionnez une existante.</p>
+          <p style="color:#636e72; font-style: italic; text-align:center; margin-top: 40px; font-family: 'Inter', sans-serif;">✨ Commencez une nouvelle conversation magique !</p>
         <% } %>
       </div>
 
       <form id="chat-form" style="display:flex; gap: 10px;">
-        <input type="text" id="question" name="question" placeholder="Votre message 😊..." required autocomplete="off" 
-               style="flex-grow:1; padding:15px 20px; font-size:18px; border-radius: 30px; border: 2px solid #1976d2; outline:none; transition: box-shadow 0.3s;"
-               onfocus="this.style.boxShadow='0 0 10px #1976d2'" 
-               onblur="this.style.boxShadow='none'" />
-        <button type="submit" style="padding: 0 30px; font-size:18px; border-radius: 30px; border:none; background:#1976d2; color:#fff; cursor:pointer; transition: background 0.3s;">
-          Envoyer
-        </button>
+        <input type="text" id="question" name="question" placeholder="Écrivez votre message ici... ✨" required autocomplete="off" class="input-text" />
+        <button type="submit" class="btn-primary">Envoyer</button>
       </form>
     </div>
   </div>
 
   <style>
-    .message {
-      margin-bottom: 15px;
-      padding: 15px 20px;
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes typing {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .chat-box {
+      flex-grow: 1;
+      padding: 25px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.95);
+      margin-bottom: 20px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      animation: fadeIn 0.6s ease-out;
+      backdrop-filter: blur(20px);
+    }
+
+    .input-text {
+      flex-grow: 1;
+      padding: 1rem 1.5rem;
+      border: 2px solid rgba(255,255,255,0.3);
       border-radius: 25px;
-      max-width: 70%;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      outline: none;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      color: #333;
+    }
+
+    .input-text:focus {
+      border-color: #ff6b6b;
+      box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2);
+      background: rgba(255,255,255,1);
+    }
+
+    .input-text:disabled {
+      background-color: rgba(255,255,255,0.5);
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #ff6b6b, #feca57);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-primary:disabled {
+      background: linear-gradient(135deg, #ccc, #999);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .message {
+      margin-bottom: 18px;
+      padding: 18px 24px;
+      border-radius: 20px;
+      max-width: 75%;
       word-wrap: break-word;
       font-size: 16px;
-      line-height: 1.4;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.5;
       opacity: 0;
-      transform: translateY(15px);
-      animation: fadeInUp 0.5s forwards;
-      box-shadow: 0 2px 5px rgb(0 0 0 / 0.05);
-      white-space: pre-wrap; /* keep line breaks */
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s forwards;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      white-space: pre-wrap;
+      transition: all 0.3s ease;
     }
+
     .message.user {
       background: #e3f2fd;
       color: #0d47a1;
       align-self: flex-start;
     }
+
     .message.ai {
       background: #fff9c4;
       color: #f57f17;
       align-self: flex-start;
       font-style: italic;
     }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background-color: #2d3436;
+      animation: typing 1s infinite;
+      margin-left: 2px;
+    }
+
+    .typing-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #636e72;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .typing-dots {
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .typing-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b6b, #feca57);
+      animation: typing-dots 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing-dots {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+      30% {
+        transform: translateY(-10px);
+        opacity: 1;
+      }
+    }
+
     #chat-list li:hover {
-      background: #bbdefb;
-      color: #0d47a1;
+      background: linear-gradient(135deg, #ff6b6b, #feca57) !important;
+      color: #fff !important;
+      transform: translateX(5px);
     }
 
     @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
       to {
         opacity: 1;
         transform: translateY(0);
@@ -93,16 +253,77 @@
     const chatBox = document.getElementById('chat-box');
     const chatForm = document.getElementById('chat-form');
     const input = document.getElementById('question');
+    const submitBtn = chatForm.querySelector('button[type="submit"]');
 
     let currentChatId = <%= currentChatId || 'null' %>;
+    const userName = "<%= userName %>";
+    let isTyping = false;
 
-    // Effet machine à écrire (char by char)
-    async function typeText(element, text) {
-      element.textContent = '';
-      for (let i = 0; i < text.length; i++) {
-        element.textContent += text.charAt(i);
-        await new Promise(r => setTimeout(r, 20)); // vitesse 20ms par char (ajuste si besoin)
-      }
+    // Convertit **gras** et *italique* dans les messages IA
+    function formatAIText(text) {
+      if (!text) return '';
+      text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      return text;
+    }
+
+    // Fonction pour l'effet de frappe progressive
+    function typeWriter(element, text, speed = 30) {
+      return new Promise((resolve) => {
+        let i = 0;
+        const formattedText = formatAIText(text);
+        
+        // Créer un élément temporaire pour parser le HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = formattedText;
+        
+        // Extraire le texte pur pour l'effet de frappe
+        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+        
+        element.innerHTML = '<strong>🤖 IA:</strong> ';
+        const contentSpan = document.createElement('span');
+        element.appendChild(contentSpan);
+        
+        const cursor = document.createElement('span');
+        cursor.className = 'typing-cursor';
+        element.appendChild(cursor);
+
+        function type() {
+          if (i < plainText.length) {
+            contentSpan.textContent += plainText.charAt(i);
+            i++;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(type, speed);
+          } else {
+            // Remplacer par le contenu formaté final
+            cursor.remove();
+            contentSpan.innerHTML = formattedText;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            resolve();
+          }
+        }
+        
+        type();
+      });
+    }
+
+    // Fonction pour afficher l'indicateur de frappe
+    function showTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message ai typing-indicator';
+      typingDiv.id = 'typing-indicator';
+      typingDiv.innerHTML = `
+        <strong>🤖 IA:</strong> 
+        <span>est en train d'écrire</span>
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      chatBox.appendChild(typingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return typingDiv;
     }
 
     async function loadChat(chatId) {
@@ -115,16 +336,16 @@
       chatBox.innerHTML = '';
 
       if (data.messages.length === 0) {
-        chatBox.innerHTML = '<p style="color:#777;">Pas encore de messages dans cette conversation.</p>';
+        chatBox.innerHTML = '<p style="color:#636e72; font-family: \'Inter\', sans-serif;">✨ Aucun message pour le moment. Commencez la conversation !</p>';
       } else {
         for (const m of data.messages) {
           const div = document.createElement('div');
           div.className = 'message ' + (m.role === 'user' ? 'user' : 'ai');
-          div.innerHTML = `<strong>${m.role === 'user' ? '🙋‍♂️ Vous:' : '🤖 IA:'}</strong> `;
+
           if (m.role === 'ai') {
-            await typeText(div, m.content);
+            div.innerHTML = `<strong>🤖 IA:</strong> ` + formatAIText(m.content);
           } else {
-            div.appendChild(document.createTextNode(m.content));
+            div.innerHTML = `<strong>🙋‍♂️ ${userName}:</strong> ` + m.content;
           }
           chatBox.appendChild(div);
         }
@@ -133,64 +354,104 @@
       chatBox.scrollTop = chatBox.scrollHeight;
       input.focus();
 
-      // Mise à jour visuelle de la sélection
       [...chatList.children].forEach(li => {
-        li.style.background = li.dataset.chatId == chatId ? '#e3f2fd' : '';
-        li.style.color = li.dataset.chatId == chatId ? '#1976d2' : '#555';
+        if (li.dataset.chatId == chatId) {
+          li.style.background = 'linear-gradient(135deg, #ff6b6b, #feca57)';
+          li.style.color = '#fff';
+        } else {
+          li.style.background = 'rgba(255,255,255,0.05)';
+          li.style.color = 'rgba(255,255,255,0.8)';
+        }
       });
     }
 
     chatList.addEventListener('click', e => {
-      if (e.target.tagName === 'LI') {
+      if (e.target.tagName === 'LI' && !isTyping) {
         const id = e.target.dataset.chatId;
         loadChat(id);
       }
     });
 
     newChatBtn.addEventListener('click', () => {
-      window.location.href = '/new';
+      if (!isTyping) {
+        window.location.href = '/new?userId=<%= userId %>';
+      }
     });
 
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!currentChatId) {
-        alert('Sélectionnez ou créez une conversation avant de poster.');
+      if (!currentChatId || isTyping) {
+        if (!currentChatId) {
+          alert('Sélectionnez ou créez une conversation avant de poster.');
+        }
         return;
       }
 
       const question = input.value.trim();
       if (!question) return;
 
+      isTyping = true;
+      
+      // Désactiver l'interface pendant la frappe
+      input.disabled = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'En cours...';
+
       // Affichage immédiat du message utilisateur
       const userDiv = document.createElement('div');
       userDiv.className = 'message user';
-      userDiv.innerHTML = `<strong>🙋‍♂️ Vous:</strong> ${question}`;
+      userDiv.innerHTML = `<strong>🙋‍♂️ ${userName}:</strong> ${question}`;
       chatBox.appendChild(userDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
 
       input.value = '';
-      input.disabled = true;
 
-      // Création de la div pour la réponse IA (vide pour l’instant)
-      const aiDiv = document.createElement('div');
-      aiDiv.className = 'message ai';
-      aiDiv.innerHTML = `<strong>🤖 IA:</strong> `;
-      chatBox.appendChild(aiDiv);
+      // Afficher l'indicateur de frappe
+      const typingIndicator = showTypingIndicator();
 
-      // Envoi au serveur
-      const res = await fetch(`/chat/${currentChatId}/message`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
-      });
-      const data = await res.json();
+      try {
+        // Envoi au serveur
+        const res = await fetch(`/chat/${currentChatId}/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question }),
+        });
+        const data = await res.json();
 
-      // Effet machine à écrire pour la réponse IA
-      await typeText(aiDiv, data.reply);
+        // Supprimer l'indicateur de frappe
+        typingIndicator.remove();
 
-      chatBox.scrollTop = chatBox.scrollHeight;
+        // Créer la div pour la réponse IA avec effet de frappe
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'message ai';
+        chatBox.appendChild(aiDiv);
+
+        // Démarrer l'effet de frappe
+        await typeWriter(aiDiv, data.reply, 20); // 20ms entre chaque caractère
+
+      } catch (error) {
+        console.error('Erreur:', error);
+        typingIndicator.remove();
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'message ai';
+        errorDiv.innerHTML = '<strong>🤖 IA:</strong> Désolé, une erreur s\'est produite.';
+        chatBox.appendChild(errorDiv);
+      }
+
+      // Réactiver l'interface
+      isTyping = false;
       input.disabled = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Envoyer';
       input.focus();
+    });
+
+    // Empêcher l'envoi pendant la frappe
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey && isTyping) {
+        e.preventDefault();
+      }
     });
 
     window.onload = () => {
